@@ -1,2 +1,2 @@
 src/*.pyc
-src/dump.rdb
+__pycache__/
