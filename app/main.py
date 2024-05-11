@@ -128,6 +128,10 @@ def game():
 @app.post("/set")
 def set(data: Data):
     conn.set("data", data.model_dump_json())
+
+    state = getState()
+    state["players"] = getPlayersFromData(data)
+    conn.set("state", json.dumps(state))
     return "", 200
 
 
