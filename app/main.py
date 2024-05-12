@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import os
+import time
 
 app = FastAPI()
 
@@ -47,6 +48,9 @@ class Data(BaseModel):
     name8: str
     race8: str
     result8: str
+    displaytime: int
+    autotime: bool
+    set_at: int = int(time.time())
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -93,6 +97,11 @@ def game():
     data = getData()
     state = getState()
 
+    if data["autotime"]:
+        displayTime = int(time.time()) - data["set_at"]
+    else:
+        displayTime = data["displaytime"]
+
     if state["players"] == []:
         state["players"] = getPlayersFromData(data)
         conn.set("state", json.dumps(state))
@@ -102,7 +111,7 @@ def game():
         conn.set("state", json.dumps(state))
 
     if data["state"] == "nogame":
-        return respond({"isReplay": False, "displayTime": 0.0, "players": []})
+        return respond({"isReplay": False, "displayTime": displayTime, "players": []})
 
     state["replay"] = data["replay"] == "true"
     if data["state"] == "ingame" and state["inGame"] == 0:
@@ -121,12 +130,17 @@ def game():
         tmpPlayers.append(p)
 
     return respond(
-        {"isReplay": state["replay"], "displayTime": 0.0, "players": tmpPlayers}
+        {
+            "isReplay": state["replay"],
+            "displayTime": displayTime,
+            "players": tmpPlayers,
+        }
     )
 
 
 @app.post("/set")
 def set(data: Data):
+    data.set_at = int(time.time())
     conn.set("data", data.model_dump_json())
 
     state = getState()
@@ -203,6 +217,9 @@ def getData() -> Data:
                 "name8": "player8",
                 "race8": "Terr",
                 "result8": "Defeat",
+                "displaytime": 0,
+                "autotime": True,
+                "set_at": int(time.time()),
             }
         )
     return Data(**json.loads(data))

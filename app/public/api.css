@@ -1,5 +1,5 @@
 body {
-	font-size: 13px;
+	font-family: Arial, sans-serif;
 }
 
 h3, h4 {
@@ -14,6 +14,10 @@ label {
 .row > div {
 	display: inline-block;
 	margin-right: 10px;
+}
+
+.row {
+	margin-bottom: 1em;
 }
 
 .panel {
