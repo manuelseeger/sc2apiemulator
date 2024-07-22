@@ -1,2 +1,2 @@
-fastapi-slim[standard]
+fastapi-slim
 redis

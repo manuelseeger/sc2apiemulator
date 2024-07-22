@@ -11,7 +11,7 @@
 
 <body>
 	<h3>SC2 Api Emulator</h3>
-	<div>The api is available at: <span class="ui-url"></span> and <span class="game-url"></span></div>
+	<div>The api is available at: <a class="ui-url"></a> and <a class="game-url"></a></div>
 	<form>
 		<div class="panel">
 			<h4>State:</h4>
@@ -233,7 +233,9 @@
 	<script>
 		$(function () {
 			$('.ui-url').text(window.location.href + "ui");
+			$('.ui-url').attr('href',window.location.href + "ui");
 			$('.game-url').text(window.location.href + "game");
+			$('.game-url').attr('href' ,window.location.href + "game");
 		})
 	</script>
 </body>
