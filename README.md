@@ -11,8 +11,8 @@ fastapi run
 ```
 or with Docker
 ```
-docker pull manuelseeger/sc2apisimulator
-docker run -d --rm -p6119:6119 --name sc2apisimulator manuelseeger/sc2apisimulator
+docker pull manuelseeger/sc2apiemulator
+docker run -d --rm -p6119:6119 --name sc2apiemulator manuelseeger/sc2apiemulator
 ```
 
 Visit http://localhost:6119/ to configure the API simulator responses. 
