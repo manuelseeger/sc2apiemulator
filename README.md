@@ -1,18 +1,18 @@
 SC2 Api Emulator
 ================
 
-SC2 client api emulator for testing purposes 
+SC2 client api emulator for testing purposes.
 
 Run locally
 ```
-pip install fastapi
+pip install -r requirements.txt
 cd app
 fastapi run
 ```
 or with Docker
 ```
-docker build -t sc2api .
-docker run -t sc2api -p6119:80
+docker pull manuelseeger/sc2apisimulator
+docker run -d --rm -p6119:6119 --name sc2apisimulator manuelseeger/sc2apisimulator
 ```
 
 Visit http://localhost:6119/ to configure the API simulator responses. 
