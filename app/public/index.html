@@ -12,25 +12,25 @@
 <body>
 	<h3>SC2 Api Emulator</h3>
 	<div>The api is available at: <a class="ui-url"></a> and <a class="game-url"></a></div>
-	<form>
+	<form id="configForm">
 		<div class="panel">
 			<h4>State:</h4>
 			<div class="row">
-				<label><input type="radio" name="state" value="nogame" checked="checked" />Menus before a game has been
+				<label><input type="radio" name="state" value="nogame" checked />Menus before a game has been
 					played</label>
 				<label><input type="radio" name="state" value="postgame" />Menus after a game has been played</label>
 				<label><input type="radio" name="state" value="loading" />Loading screen</label>
 				<label><input type="radio" name="state" value="ingame" />In game</label>
 				<div class="spacer"></div>
-				<label><input type="radio" name="replay" value="false" checked="checked" />No Replay</label>
+				<label><input type="radio" name="replay" value="false" checked />No Replay</label>
 				<label><input type="radio" name="replay" value="true" />Replay</label>
 
 
 			</div>
 			<div class="row">
 				<label>Display Time:</label>
-				<label><input type="radio" name="autotime" value="true" checked="checked" />Auto</label>
-				<label><input type="radio" name="autotime" value="False" />Manual</label>
+				<label><input type="radio" name="autotime" value="true" checked />Auto</label>
+				<label><input type="radio" name="autotime" value="false" />Manual</label>
 				<input type="text" placeholder="displaytime" name="displaytime" value="0" />
 			</div>
 		</div>
@@ -236,7 +236,7 @@
 			$('.ui-url').attr('href',window.location.href + "ui");
 			$('.game-url').text(window.location.href + "game");
 			$('.game-url').attr('href' ,window.location.href + "game");
-		})
+		});
 	</script>
 </body>
 
