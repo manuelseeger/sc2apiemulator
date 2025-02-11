@@ -3,6 +3,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
 
 app = FastAPI()
 conn = redis.Redis("localhost")
@@ -61,7 +63,7 @@ def getData() -> Data:
             set_at=int(time.time())
         )
         return default_data
-    return Data.parse_obj(json.loads(data))
+    return Data.model_validate(json.loads(data))
 
 def getPlayersFromData(data: Data):
     # Return only enabled players as dictionaries with updated result values
@@ -133,11 +135,23 @@ def game():
 @app.post("/set")
 def set_data(new_data: Data):
     new_data.set_at = int(time.time())
-    conn.set("data", new_data.json())
+    conn.set("data", new_data.model_dump_json())
     state = getState()
     state["players"] = getPlayersFromData(new_data)
     conn.set("state", json.dumps(state))
     return respond({"status": "ok"})
+
+
+class DisableCacheMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        if isinstance(response, Response):
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        return response
+
+app.add_middleware(DisableCacheMiddleware)
 
 app.mount(
     "/", StaticFiles(directory=os.path.join(".", "public"), html=True), name="public"
