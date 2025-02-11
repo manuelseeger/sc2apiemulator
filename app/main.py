@@ -1,84 +1,93 @@
-import json, redis, time, os
+from typing import Optional
+import redis, time, os
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
+from enum import Enum
 
 app = FastAPI()
 conn = redis.Redis("localhost")
 
+class Screen(str, Enum):
+    loading = "ScreenLoading/ScreenLoading"
+    score = "ScreenScore/ScreenScore"
+    home = "ScreenHome/ScreenHome"
+    background = "ScreenBackgroundSC2/ScreenBackgroundSC2"
+    foreground = "ScreenForegroundSC2/ScreenForegroundSC2"
+    navigation = "ScreenNavigationSC2/ScreenNavigationSC2"
+    userprofile = "ScreenUserProfile/ScreenUserProfile"
+    multiplayer = "ScreenMultiplayer/ScreenMultiplayer"
+    single = "ScreenSingle/ScreenSingle"
+    collection = "ScreenCollection/ScreenCollection"
+    coopcampaign = "ScreenCoopCampaign/ScreenCoopCampaign"
+    custom = "ScreenCustom/ScreenCustom"
+    replay = "ScreenReplay/ScreenReplay"
+    battlelobby = "ScreenBattleLobby/ScreenBattleLobby"
+
+
+class Race(str, Enum):
+    terran = "Terr"
+    protoss = "Prot"
+    zerg = "Zerg"
+    random = "random"
+
+
+class Result(str, Enum):
+    win = "Victory"
+    loss = "Defeat"
+    undecided = "Undecided"
+    tie = "Tie"
+
+
 class Player(BaseModel):
     id: int
-    enabled: bool
     name: str
-    race: str
-    result: str
+    type: str = "user"
+    race: Race
+    result: Result
+
+
+class GameInfo(BaseModel):
+    isReplay: bool
+    displayTime: float
+    players: list[Player]
+
+class UIInfo(BaseModel):
+    activeScreens: set[Screen]
+
 
 class Data(BaseModel):
-    state: str
-    menu_state: str
-    additional_menu_state: str
-    replay: bool
-    players: list[Player]
-    displaytime: int
-    autotime: bool
+    state: str = "nogame"
+    menu_state: str = Screen.home.value
+    additional_menu_state: Optional[str] = None
+    replay: bool = False
+    players: list[Player] = []
+    displaytime: int = 0
+    autotime: bool = True
     set_at: int = int(time.time())
 
 class State(BaseModel):
-    players: list
-    replay: bool
-    inGame: int = 0
+    players: list[Player] = []
+    replay: bool = False
+    inGame: bool = False
 
-def respond(data):
-    return JSONResponse(content=data)
-
-def getState():
+def getState() -> State:
     state = conn.get("state")
     if not state:
-        return {"players": [], "replay": False, "inGame": 0}
-    return json.loads(state)
+        return State()
+    return State.model_validate_json(state )
 
 def getData() -> Data:
     data = conn.get("data")
     if not data:
-        default_data = Data(
-            state="nogame",
-            menu_state="ScreenHome/ScreenHome",
-            additional_menu_state="None",
-            replay=False,
-            players=[
-                Player(id=1, enabled=True, name="player1", race="Terr", result="Defeat"),
-                Player(id=2, enabled=True, name="player2", race="Terr", result="Defeat"),
-                Player(id=3, enabled=False, name="player3", race="Terr", result="Defeat"),
-                Player(id=4, enabled=False, name="player4", race="Terr", result="Defeat"),
-                Player(id=5, enabled=False, name="player5", race="Terr", result="Defeat"),
-                Player(id=6, enabled=False, name="player6", race="Terr", result="Defeat"),
-                Player(id=7, enabled=False, name="player7", race="Terr", result="Defeat"),
-                Player(id=8, enabled=False, name="player8", race="Terr", result="Defeat"),
-            ],
-            displaytime=0,
-            autotime=True,
-            set_at=int(time.time())
-        )
-        return default_data
-    return Data.model_validate(json.loads(data))
+        return Data()
+    return Data.model_validate_json(data)
 
-def getPlayersFromData(data: Data):
-    # Return only enabled players as dictionaries with updated result values
-    players = []
-    for player in data.players:
-        if player.enabled:
-            players.append(player.dict())
-    return players
-
-@app.get("/hello")
-def read_root():
-    return {"Hello": "World"}
 
 @app.get("/ui")
-def ui():
+def ui() -> UIInfo:
     data = getData()
     if data.state in ("nogame", "postgame"):
         activeScreens = [
@@ -87,17 +96,18 @@ def ui():
             "ScreenNavigationSC2/ScreenNavigationSC2",
             "ScreenForegroundSC2/ScreenForegroundSC2",
         ]
-        if data.additional_menu_state != "None":
+        if data.additional_menu_state is not None:
             activeScreens.append(data.additional_menu_state)
-        return respond({"activeScreens": activeScreens})
+
+        return UIInfo(activeScreens=activeScreens)
     if data.state == "loading":
-        return respond({"activeScreens": ["ScreenLoading/ScreenLoading"]})
+        return UIInfo(activeScreens=["ScreenLoading/ScreenLoading"])
     if data.state == "ingame":
-        return respond({"activeScreens": []})
+        return UIInfo(activeScreens=[])
     raise HTTPException(status_code=400, detail="Invalid state")
 
 @app.get("/game")
-def game():
+def game() -> GameInfo:
     data = getData()
     state = getState()
 
@@ -106,40 +116,37 @@ def game():
     else:
         displayTime = data.displaytime
 
-    if not state.get("players"):
-        state["players"] = getPlayersFromData(data)
-        conn.set("state", json.dumps(state))
+    if len(state.players) == 0:
+        state.players = data.players
+        conn.set("state", state.model_dump_json())
 
     if data.state in ("nogame", "postgame"):
-        state["inGame"] = 0
-        conn.set("state", json.dumps(state))
-        return respond({"isReplay": False, "displayTime": displayTime, "players": []})
+        state.inGame = False
+        conn.set("state", state.model_dump_json())
+        return GameInfo(isReplay=False, displayTime=0, players=[])
 
-    state["replay"] = data.replay
-    if data.state == "ingame" and state.get("inGame", 0) == 0:
-        state["inGame"] = 1
-        state["players"] = getPlayersFromData(data)
-        conn.set("state", json.dumps(state))
+    state.replay = data.replay
+    if data.state == "ingame" and state.inGame == False:
+        state.inGame = True
+        state.players = data.players
+        conn.set("state", state.model_dump_json())
 
-    tmpPlayers = []
-    for i, player in enumerate(state["players"]):
-        p = player.copy()
-        
+    
+    for i, player in enumerate(state.players):
         if data.state == "ingame" and not data.replay:
-            p["result"] = "Undecided"
-        p["id"] = i + 1
-        tmpPlayers.append(p)
-
-    return respond({"isReplay": state["replay"], "displayTime": displayTime, "players": tmpPlayers})
+            player.result = Result.undecided.value
+        player.id = i + 1
+        
+    return GameInfo(isReplay=state.replay, displayTime=displayTime, players=state.players)
 
 @app.post("/set")
 def set_data(new_data: Data):
     new_data.set_at = int(time.time())
     conn.set("data", new_data.model_dump_json())
     state = getState()
-    state["players"] = getPlayersFromData(new_data)
-    conn.set("state", json.dumps(state))
-    return respond({"status": "ok"})
+    state.players = new_data.players
+    conn.set("state", state.model_dump_json())
+    return {"status": "ok"}
 
 
 class DisableCacheMiddleware(BaseHTTPMiddleware):

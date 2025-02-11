@@ -22,17 +22,20 @@ function push() {
     rawData[$(this).attr("name")] = $(this).prop("checked");
   });
 
+  if (rawData["additional_menu_state"] == "") {
+    delete rawData["additional_menu_state"];
+  }
+
   // Build players array (assuming players 1 to 8)
   var players = [];
   for (var i = 1; i <= 8; i++) {
     // Only add a player if the name field is present
-    if (rawData["name" + i] !== undefined) {
+    if (rawData["name" + i] !== undefined && rawData['enabled' + i] === true) {
       players.push({
         id: i,
         name: rawData["name" + i],
         race: rawData["race" + i],
-        result: rawData["result" + i],
-        enabled: rawData["enabled" + i] === true
+        result: rawData["result" + i]
       });
       // Remove individual fields from rawData
       delete rawData["name" + i];
