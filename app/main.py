@@ -26,20 +26,17 @@ class Screen(str, Enum):
     replay = "ScreenReplay/ScreenReplay"
     battlelobby = "ScreenBattleLobby/ScreenBattleLobby"
 
-
 class Race(str, Enum):
     terran = "Terr"
     protoss = "Prot"
     zerg = "Zerg"
     random = "random"
 
-
 class Result(str, Enum):
     win = "Victory"
     loss = "Defeat"
     undecided = "Undecided"
     tie = "Tie"
-
 
 class Player(BaseModel):
     id: int
@@ -48,7 +45,6 @@ class Player(BaseModel):
     race: Race
     result: Result
 
-
 class GameInfo(BaseModel):
     isReplay: bool
     displayTime: float
@@ -56,7 +52,6 @@ class GameInfo(BaseModel):
 
 class UIInfo(BaseModel):
     activeScreens: set[Screen]
-
 
 class Data(BaseModel):
     state: str = "nogame"
@@ -68,23 +63,11 @@ class Data(BaseModel):
     autotime: bool = True
     set_at: int = int(time.time())
 
-class State(BaseModel):
-    players: list[Player] = []
-    replay: bool = False
-    inGame: bool = False
-
-def getState() -> State:
-    state = conn.get("state")
-    if not state:
-        return State()
-    return State.model_validate_json(state )
-
 def getData() -> Data:
     data = conn.get("data")
     if not data:
         return Data()
     return Data.model_validate_json(data)
-
 
 @app.get("/ui")
 def ui() -> UIInfo:
@@ -109,45 +92,26 @@ def ui() -> UIInfo:
 @app.get("/game")
 def game() -> GameInfo:
     data = getData()
-    state = getState()
-
     if data.autotime:
         displayTime = int(time.time()) - data.set_at
     else:
         displayTime = data.displaytime
 
-    if len(state.players) == 0:
-        state.players = data.players
-        conn.set("state", state.model_dump_json())
-
     if data.state != "ingame":
-        state.inGame = False
-        conn.set("state", state.model_dump_json())
         return GameInfo(isReplay=False, displayTime=0, players=[])
 
-    state.replay = data.replay
-    if data.state == "ingame" and state.inGame == False:
-        state.inGame = True
-        state.players = data.players
-        conn.set("state", state.model_dump_json())
-
-    
-    for i, player in enumerate(state.players):
-        if data.state == "ingame" and not data.replay:
+    for i, player in enumerate(data.players):
+        if not data.replay:
             player.result = Result.undecided.value
         player.id = i + 1
-        
-    return GameInfo(isReplay=state.replay, displayTime=displayTime, players=state.players)
+
+    return GameInfo(isReplay=data.replay, displayTime=displayTime, players=data.players)
 
 @app.post("/set")
 def set_data(new_data: Data):
     new_data.set_at = int(time.time())
     conn.set("data", new_data.model_dump_json())
-    state = getState()
-    state.players = new_data.players
-    conn.set("state", state.model_dump_json())
     return {"status": "ok"}
-
 
 class DisableCacheMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
