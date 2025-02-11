@@ -1,50 +1,40 @@
 $.fn.serializeObject = function () {
-  var o = {};
-  var a = this.serializeArray();
-  $.each(a, function () {
-    o[this.name] = this.value;
-  });
-  return o;
+  return this.serializeArray().reduce((obj, item) => {
+    obj[item.name] = item.value;
+    return obj;
+  }, {});
 };
 
 function push() {
-  var rawData = $('#configForm').serializeObject();
+  let rawData = $('#configForm').serializeObject();
 
   // Convert radio values for booleans
-  if ("replay" in rawData) {
-    rawData.replay = rawData.replay === "true";
-  }
-  if ("autotime" in rawData) {
-    rawData.autotime = rawData.autotime === "true";
-  }
+  if ("replay" in rawData) rawData.replay = rawData.replay === "true";
+  if ("autotime" in rawData) rawData.autotime = rawData.autotime === "true";
+
   // Convert checkboxes properly
   $('input[type="checkbox"]').each(function () {
     rawData[$(this).attr("name")] = $(this).prop("checked");
   });
 
-  if (rawData["additional_menu_state"] == "") {
-    delete rawData["additional_menu_state"];
+  if (rawData.additional_menu_state === "") {
+    delete rawData.additional_menu_state;
   }
 
-  // Build players array (assuming players 1 to 8)
-  var players = [];
-  for (var i = 1; i <= 8; i++) {
-    // Only add a player if the name field is present
-    if (rawData["name" + i] !== undefined && rawData['enabled' + i] === true) {
-      players.push({
+  // Build players array (players 1 to 8)
+  rawData.players = [];
+  for (let i = 1; i <= 8; i++) {
+    if (rawData["name" + i] !== undefined && rawData["enabled" + i] === true) {
+      rawData.players.push({
         id: i,
         name: rawData["name" + i],
         race: rawData["race" + i],
         result: rawData["result" + i]
       });
-      // Remove individual fields from rawData
-      delete rawData["name" + i];
-      delete rawData["race" + i];
-      delete rawData["result" + i];
-      delete rawData["enabled" + i];
+      // Remove individual player fields
+      ["name", "race", "result", "enabled"].forEach(key => delete rawData[key + i]);
     }
   }
-  rawData.players = players;
 
   // Post the payload
   $.post({
@@ -52,21 +42,14 @@ function push() {
     data: JSON.stringify(rawData),
     contentType: "application/json",
     processData: false,
-    success: function (response) {
-      console.log("Data saved:", response);
-    }
+    success: response => console.log("Data saved:", response)
   });
 }
 
 $(function () {
-  $('#configForm').change(function () {
+  $('#configForm').change(() => {
     push();
-    $.get("/ui", function (response) {
-      $("#ui-response").text(JSON.stringify(response));
-    });
-    $.get("/game", function (response) {
-      $("#game-response").text(JSON.stringify(response));
-    });
-  });
-  $('#configForm').trigger("change");
+    $.get("/ui", response => $("#ui-response").text(JSON.stringify(response)));
+    $.get("/game", response => $("#game-response").text(JSON.stringify(response)));
+  }).trigger("change");
 });

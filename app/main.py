@@ -120,7 +120,7 @@ def game() -> GameInfo:
         state.players = data.players
         conn.set("state", state.model_dump_json())
 
-    if data.state in ("nogame", "postgame"):
+    if data.state != "ingame":
         state.inGame = False
         conn.set("state", state.model_dump_json())
         return GameInfo(isReplay=False, displayTime=0, players=[])
