@@ -349,14 +349,17 @@
 
 
 
-	<script src="jquery-3.4.1.min.js"></script>
 	<script src="api.js"></script>
 	<script>
-		$(function () {
-			$('.ui-url').text(window.location.href + "ui");
-			$('.ui-url').attr('href',window.location.href + "ui");
-			$('.game-url').text(window.location.href + "game");
-			$('.game-url').attr('href' ,window.location.href + "game");
+		document.addEventListener("DOMContentLoaded", function() {
+			document.querySelectorAll('.ui-url').forEach(function(element) {
+				element.textContent = window.location.href + "ui";
+				element.setAttribute('href', window.location.href + "ui");
+			});
+			document.querySelectorAll('.game-url').forEach(function(element) {
+				element.textContent = window.location.href + "game";
+				element.setAttribute('href', window.location.href + "game");
+			});
 		});
 	</script>
 </body>

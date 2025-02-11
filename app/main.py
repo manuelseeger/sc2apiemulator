@@ -1,6 +1,6 @@
 from typing import Optional
 import redis, time, os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -25,6 +25,12 @@ class Screen(str, Enum):
     custom = "ScreenCustom/ScreenCustom"
     replay = "ScreenReplay/ScreenReplay"
     battlelobby = "ScreenBattleLobby/ScreenBattleLobby"
+
+class State(str, Enum):
+    nogame = "nogame"
+    ingame = "ingame"
+    loading = "loading"
+    postgame = "postgame"
 
 class Race(str, Enum):
     terran = "Terr"
@@ -54,7 +60,7 @@ class UIInfo(BaseModel):
     activeScreens: set[Screen]
 
 class Data(BaseModel):
-    state: str = "nogame"
+    state: State = State.nogame
     menu_state: str = Screen.home.value
     additional_menu_state: Optional[str] = None
     replay: bool = False
@@ -72,22 +78,24 @@ def getData() -> Data:
 @app.get("/ui")
 def ui() -> UIInfo:
     data = getData()
-    if data.state in ("nogame", "postgame"):
-        activeScreens = [
-            "ScreenBackgroundSC2/ScreenBackgroundSC2",
-            data.menu_state,
-            "ScreenNavigationSC2/ScreenNavigationSC2",
-            "ScreenForegroundSC2/ScreenForegroundSC2",
-        ]
-        if data.additional_menu_state is not None:
-            activeScreens.append(data.additional_menu_state)
-
-        return UIInfo(activeScreens=activeScreens)
+    
+        
     if data.state == "loading":
-        return UIInfo(activeScreens=["ScreenLoading/ScreenLoading"])
+        return UIInfo(activeScreens=[Screen.loading])
     if data.state == "ingame":
         return UIInfo(activeScreens=[])
-    raise HTTPException(status_code=400, detail="Invalid state")
+    
+    activeScreens = [
+        Screen.background.value,
+        data.menu_state,
+        Screen.navigation.value,
+        Screen.foreground.value,
+    ]
+    if data.additional_menu_state is not None:
+        activeScreens.append(data.additional_menu_state)
+
+    return UIInfo(activeScreens=activeScreens)
+    
 
 @app.get("/game")
 def game() -> GameInfo:
