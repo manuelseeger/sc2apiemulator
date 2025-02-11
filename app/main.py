@@ -1,229 +1,157 @@
-import json, redis
-from fastapi import FastAPI
+import json, redis, time, os
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-import os
-import time
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
 
 app = FastAPI()
-
 conn = redis.Redis("localhost")
 
+class Player(BaseModel):
+    id: int
+    enabled: bool
+    name: str
+    race: str
+    result: str
 
 class Data(BaseModel):
     state: str
     menu_state: str
     additional_menu_state: str
-    replay: str
-    enabled1: bool
-    name1: str
-    race1: str
-    result1: str
-    enabled2: bool
-    name2: str
-    race2: str
-    result2: str
-    enabled3: bool
-    name3: str
-    race3: str
-    result3: str
-    enabled4: bool
-    name4: str
-    race4: str
-    result4: str
-    enabled5: bool
-    name5: str
-    race5: str
-    result5: str
-    enabled6: bool
-    name6: str
-    race6: str
-    result6: str
-    enabled7: bool
-    name7: str
-    race7: str
-    result7: str
-    enabled8: bool
-    name8: str
-    race8: str
-    result8: str
+    replay: bool
+    players: list[Player]
     displaytime: int
     autotime: bool
     set_at: int = int(time.time())
 
-    def __getitem__(self, item):
-        return getattr(self, item)
-
-
 class State(BaseModel):
     players: list
-    replay: str
-    inGame: int
+    replay: bool
+    inGame: int = 0
 
+def respond(data):
+    return JSONResponse(content=data)
+
+def getState():
+    state = conn.get("state")
+    if not state:
+        return {"players": [], "replay": False, "inGame": 0}
+    return json.loads(state)
+
+def getData() -> Data:
+    data = conn.get("data")
+    if not data:
+        default_data = Data(
+            state="nogame",
+            menu_state="ScreenHome/ScreenHome",
+            additional_menu_state="None",
+            replay=False,
+            players=[
+                Player(id=1, enabled=True, name="player1", race="Terr", result="Defeat"),
+                Player(id=2, enabled=True, name="player2", race="Terr", result="Defeat"),
+                Player(id=3, enabled=False, name="player3", race="Terr", result="Defeat"),
+                Player(id=4, enabled=False, name="player4", race="Terr", result="Defeat"),
+                Player(id=5, enabled=False, name="player5", race="Terr", result="Defeat"),
+                Player(id=6, enabled=False, name="player6", race="Terr", result="Defeat"),
+                Player(id=7, enabled=False, name="player7", race="Terr", result="Defeat"),
+                Player(id=8, enabled=False, name="player8", race="Terr", result="Defeat"),
+            ],
+            displaytime=0,
+            autotime=True,
+            set_at=int(time.time())
+        )
+        return default_data
+    return Data.model_validate(json.loads(data))
+
+def getPlayersFromData(data: Data):
+    # Return only enabled players as dictionaries with updated result values
+    players = []
+    for player in data.players:
+        if player.enabled:
+            players.append(player.dict())
+    return players
 
 @app.get("/hello")
 def read_root():
     return {"Hello": "World"}
 
-
 @app.get("/ui")
 def ui():
     data = getData()
-    if data["state"] == "nogame" or data["state"] == "postgame":
+    if data.state in ("nogame", "postgame"):
         activeScreens = [
             "ScreenBackgroundSC2/ScreenBackgroundSC2",
-            data["menu_state"],
+            data.menu_state,
             "ScreenNavigationSC2/ScreenNavigationSC2",
             "ScreenForegroundSC2/ScreenForegroundSC2",
         ]
-
-        if data["additional_menu_state"] != "None":
-            activeScreens.append(data["additional_menu_state"])
-
+        if data.additional_menu_state != "None":
+            activeScreens.append(data.additional_menu_state)
         return respond({"activeScreens": activeScreens})
-
-    if data["state"] == "loading":
+    if data.state == "loading":
         return respond({"activeScreens": ["ScreenLoading/ScreenLoading"]})
-
-    if data["state"] == "ingame":
+    if data.state == "ingame":
         return respond({"activeScreens": []})
-
-    return 400
-
+    raise HTTPException(status_code=400, detail="Invalid state")
 
 @app.get("/game")
 def game():
     data = getData()
     state = getState()
 
-    if data["autotime"]:
-        displayTime = int(time.time()) - data["set_at"]
+    if data.autotime:
+        displayTime = int(time.time()) - data.set_at
     else:
-        displayTime = data["displaytime"]
+        displayTime = data.displaytime
 
-    if state["players"] == []:
+    if not state.get("players"):
         state["players"] = getPlayersFromData(data)
         conn.set("state", json.dumps(state))
 
-    if data["state"] == "nogame" or data["state"] == "postgame":
+    if data.state in ("nogame", "postgame"):
         state["inGame"] = 0
         conn.set("state", json.dumps(state))
-
-    if data["state"] == "nogame":
         return respond({"isReplay": False, "displayTime": displayTime, "players": []})
 
-    state["replay"] = data["replay"] == "true"
-    if data["state"] == "ingame" and state["inGame"] == 0:
+    state["replay"] = data.replay
+    if data.state == "ingame" and state.get("inGame", 0) == 0:
         state["inGame"] = 1
         state["players"] = getPlayersFromData(data)
         conn.set("state", json.dumps(state))
 
     tmpPlayers = []
-    for i in range(0, len(state["players"])):
-        p = state["players"][i].copy()
-        if data["state"] == "ingame" and data["replay"] == "false":
+    for i, player in enumerate(state["players"]):
+        p = player.copy()
+        
+        if data.state == "ingame" and not data.replay:
             p["result"] = "Undecided"
-        else:
-            p["result"] = data["result" + str(p["id"])]
         p["id"] = i + 1
         tmpPlayers.append(p)
 
-    return respond(
-        {
-            "isReplay": state["replay"],
-            "displayTime": displayTime,
-            "players": tmpPlayers,
-        }
-    )
-
+    return respond({"isReplay": state["replay"], "displayTime": displayTime, "players": tmpPlayers})
 
 @app.post("/set")
-def set(data: Data):
-    data.set_at = int(time.time())
-    conn.set("data", data.model_dump_json())
-
+def set_data(new_data: Data):
+    new_data.set_at = int(time.time())
+    conn.set("data", new_data.model_dump_json())
     state = getState()
-    state["players"] = getPlayersFromData(data)
+    state["players"] = getPlayersFromData(new_data)
     conn.set("state", json.dumps(state))
-    return "", 200
+    return respond({"status": "ok"})
 
 
-def getPlayersFromData(data):
-    players = []
-    for i in range(1, 9):
-        if data["enabled" + str(i)]:
-            players.append(
-                {
-                    "id": i,
-                    "name": data["name" + str(i)],
-                    "type": "user",
-                    "race": data["race" + str(i)],
-                    "result": data["result" + str(i)],
-                }
-            )
-    return players
+class DisableCacheMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        if isinstance(response, Response):
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        return response
 
-
-def respond(data):
-    return JSONResponse(content=data)
-
-
-def getState():
-    state = conn.get("state")
-    if not state:
-        return {"players": [], "replay": "false"}
-    return json.loads(state)
-
-
-def getData() -> Data:
-    data = conn.get("data")
-    if not data:
-        return Data(
-            **{
-                "state": "nogame",
-                "menu_state": "ScreenHome/ScreenHome",
-                "additional_menu_state": "None",
-                "replay": "false",
-                "enabled1": "true",
-                "name1": "player1",
-                "race1": "Terr",
-                "result1": "Defeat",
-                "enabled2": "true",
-                "name2": "player2",
-                "race2": "Terr",
-                "result2": "Defeat",
-                "enabled3": "false",
-                "name3": "player3",
-                "race3": "Terr",
-                "result3": "Defeat",
-                "enabled4": "false",
-                "name4": "player4",
-                "race4": "Terr",
-                "result4": "Defeat",
-                "enabled5": "false",
-                "name5": "player5",
-                "race5": "Terr",
-                "result5": "Defeat",
-                "enabled6": "false",
-                "name6": "player6",
-                "race6": "Terr",
-                "result6": "Defeat",
-                "enabled7": "false",
-                "name7": "player7",
-                "race7": "Terr",
-                "result7": "Defeat",
-                "enabled8": "false",
-                "name8": "player8",
-                "race8": "Terr",
-                "result8": "Defeat",
-                "displaytime": 0,
-                "autotime": True,
-                "set_at": int(time.time()),
-            }
-        )
-    return Data(**json.loads(data))
-
+app.add_middleware(DisableCacheMiddleware)
 
 app.mount(
     "/", StaticFiles(directory=os.path.join(".", "public"), html=True), name="public"
