@@ -16,50 +16,77 @@
 		<div class="panel">
 			<h4>State:</h4>
 			<div class="row">
-				<label><input type="radio" name="state" value="nogame" checked />Menus before a game has been
-					played</label>
-				<label><input type="radio" name="state" value="postgame" />Menus after a game has been played</label>
-				<label><input type="radio" name="state" value="loading" />Loading screen</label>
-				<label><input type="radio" name="state" value="ingame" />In game</label>
+				<input type="radio" id="state-nogame" name="state" value="nogame" checked />
+				<label for="state-nogame">Menus before a game has been played</label>
+				
+				<input type="radio" id="state-postgame" name="state" value="postgame" />
+				<label for="state-postgame">Menus after a game has been played</label>
+				
+				<input type="radio" id="state-loading" name="state" value="loading" />
+				<label for="state-loading">Loading screen</label>
+				
+				<input type="radio" id="state-ingame" name="state" value="ingame" />
+				<label for="state-ingame">In game</label>
+				
 				<div class="spacer"></div>
-				<label><input type="radio" name="replay" value="false" checked />No Replay</label>
-				<label><input type="radio" name="replay" value="true" />Replay</label>
-
-
+				
+				<input type="radio" id="replay-false" name="replay" value="false" checked />
+				<label for="replay-false">No Replay</label>
+				
+				<input type="radio" id="replay-true" name="replay" value="true" />
+				<label for="replay-true">Replay</label>
 			</div>
 			<div class="row">
-				<label>Display Time:</label>
-				<label><input type="radio" name="autotime" value="true" checked />Auto</label>
-				<label><input type="radio" name="autotime" value="false" />Manual</label>
-				<input type="text" placeholder="displaytime" name="displaytime" value="0" />
+				<label for="displaytime">Display Time:</label>
+				
+				<input type="radio" id="autotime-auto" name="autotime" value="true" checked />
+				<label for="autotime-auto">Auto</label>
+				
+				<input type="radio" id="autotime-manual" name="autotime" value="false" />
+				<label for="autotime-manual">Manual</label>
+				
+				<input type="text" id="displaytime" placeholder="displaytime" name="displaytime" value="0" />
 			</div>
 		</div>
 		<div class="panel">
 			<h4>Main Menu:</h4>
 			<div class="row">
-				<label><input type="radio" name="menu_state" value="ScreenHome/ScreenHome"
-						checked="checked" />ScreenHome</label>
-				<label><input type="radio" name="menu_state" value="ScreenSingle/ScreenSingle" />ScreenSingle</label>
-				<label><input type="radio" name="menu_state"
-						value="ScreenCollection/ScreenCollection" />ScreenCollection</label>
-				<label><input type="radio" name="menu_state"
-						value="ScreenCoopCampaign/ScreenCoopCampaign" />ScreenCoopCampaign</label>
-				<label><input type="radio" name="menu_state" value="ScreenCustom/ScreenCustom" />ScreenCustom</label>
-				<label><input type="radio" name="menu_state" value="ScreenReplay/ScreenReplay" />ScreenReplay</label>
-				<label><input type="radio" name="menu_state"
-						value="ScreenMultiplayer/ScreenMultiplayer" />ScreenMultiplayer</label>
+				<input type="radio" id="menu_state-screenhome" name="menu_state" value="ScreenHome/ScreenHome" checked />
+				<label for="menu_state-screenhome">ScreenHome</label>
+				
+				<input type="radio" id="menu_state-screensingle" name="menu_state" value="ScreenSingle/ScreenSingle" />
+				<label for="menu_state-screensingle">ScreenSingle</label>
+				
+				<input type="radio" id="menu_state-screencollection" name="menu_state" value="ScreenCollection/ScreenCollection" />
+				<label for="menu_state-screencollection">ScreenCollection</label>
+				
+				<input type="radio" id="menu_state-screencoopcampaign" name="menu_state" value="ScreenCoopCampaign/ScreenCoopCampaign" />
+				<label for="menu_state-screencoopcampaign">ScreenCoopCampaign</label>
+				
+				<input type="radio" id="menu_state-screencustom" name="menu_state" value="ScreenCustom/ScreenCustom" />
+				<label for="menu_state-screencustom">ScreenCustom</label>
+				
+				<input type="radio" id="menu_state-screenreplay" name="menu_state" value="ScreenReplay/ScreenReplay" />
+				<label for="menu_state-screenreplay">ScreenReplay</label>
+				
+				<input type="radio" id="menu_state-screenmultiplayer" name="menu_state" value="ScreenMultiplayer/ScreenMultiplayer" />
+				<label for="menu_state-screenmultiplayer">ScreenMultiplayer</label>
 			</div>
 		</div>
 		<div class="panel">
 			<h4>Additional Menu:</h4>
 			<div class="row">
-				<label><input type="radio" name="additional_menu_state" value="None" checked="checked" />None</label>
-				<label><input type="radio" name="additional_menu_state"
-						value="ScreenScore/ScreenScore" />ScreenScore</label>
-				<label><input type="radio" name="additional_menu_state"
-						value="ScreenUserProfile/ScreenUserProfile" />ScreenUserProfile</label>
-				<label><input type="radio" name="additional_menu_state"
-						value="ScreenBattleLobby/ScreenBattleLobby" />ScreenBattleLobby</label>
+				<input type="radio" id="additional_menu_state-none" name="additional_menu_state" value="None" checked />
+				<label for="additional_menu_state-none">None</label>
+				
+				<input type="radio" id="additional_menu_state-screenscore" name="additional_menu_state" value="ScreenScore/ScreenScore" />
+				<label for="additional_menu_state-screenscore">ScreenScore</label>
+				
+				<input type="radio" id="additional_menu_state-screenuserprofile" name="additional_menu_state" value="ScreenUserProfile/ScreenUserProfile" />
+				<label for="additional_menu_state-screenuserprofile">ScreenUserProfile</label>
+				
+				<input type="radio" id="additional_menu_state-screenbattlelobby" name="additional_menu_state" value="ScreenBattleLobby/ScreenBattleLobby" />
+				<label for="additional_menu_state-screenbattlelobby">ScreenBattleLobby</label>
 			</div>
 		</div>
 		<div class="panel">
@@ -67,148 +94,242 @@
 			<div>
 				<div class="player-row">
 					player 1
-					<div class="enabled-div"><input type="checkbox" name="enabled1" value="true" checked="checked" />
-						Enabled</div>
+					<div class="enabled-div">
+						<input type="checkbox" id="enabled1" name="enabled1" value="true" checked />
+						<label for="enabled1">Enabled</label>
+					</div>
 					<div>
-						<input type="text" placeholder="Player Name" name="name1" value="player1" />
+						<input type="text" id="name1" placeholder="Player Name" name="name1" value="player1" />
 					</div>
 					<div class="race-div">
-						<input type="radio" name="race1" value="Terr" checked="checked" /> Terr
-						<input type="radio" name="race1" value="Prot" /> Prot
-						<input type="radio" name="race1" value="Zerg" /> Zerg
-						<input type="radio" name="race1" value="random" /> random
-
+						<input type="radio" id="race1-terr" name="race1" value="Terr" checked />
+						<label for="race1-terr">Terr</label>
+						
+						<input type="radio" id="race1-prot" name="race1" value="Prot" />
+						<label for="race1-prot">Prot</label>
+						
+						<input type="radio" id="race1-zerg" name="race1" value="Zerg" />
+						<label for="race1-zerg">Zerg</label>
+						
+						<input type="radio" id="race1-random" name="race1" value="random" />
+						<label for="race1-random">random</label>
 					</div>
 					<div>
-						<input type="radio" name="result1" value="Victory" checked="checked" /> Victory
-						<input type="radio" name="result1" value="Defeat" /> Defeat
+						<input type="radio" id="result1-victory" name="result1" value="Victory" checked />
+						<label for="result1-victory">Victory</label>
+						
+						<input type="radio" id="result1-defeat" name="result1" value="Defeat" />
+						<label for="result1-defeat">Defeat</label>
 					</div>
 				</div>
 				<div class="player-row">
 					player 2
-					<div class="enabled-div"><input type="checkbox" name="enabled2" value="true" checked="checked" />
-						Enabled</div>
+					<div class="enabled-div">
+						<input type="checkbox" id="enabled2" name="enabled2" value="true" checked />
+						<label for="enabled2">Enabled</label>
+					</div>
 					<div>
-						<input type="text" placeholder="Player Name" name="name2" value="player2" />
+						<input type="text" id="name2" placeholder="Player Name" name="name2" value="player2" />
 					</div>
 					<div class="race-div">
-						<input type="radio" name="race2" value="Terr" checked="checked" /> Terr
-						<input type="radio" name="race2" value="Prot" /> Prot
-						<input type="radio" name="race2" value="Zerg" checked="checked" /> Zerg
-						<input type="radio" name="race2" value="random" /> random
-
+						<input type="radio" id="race2-terr" name="race2" value="Terr" checked />
+						<label for="race2-terr">Terr</label>
+						
+						<input type="radio" id="race2-prot" name="race2" value="Prot" />
+						<label for="race2-prot">Prot</label>
+						
+						<input type="radio" id="race2-zerg" name="race2" value="Zerg" checked />
+						<label for="race2-zerg">Zerg</label>
+						
+						<input type="radio" id="race2-random" name="race2" value="random" />
+						<label for="race2-random">random</label>
 					</div>
 					<div>
-						<input type="radio" name="result2" value="Victory" /> Victory
-						<input type="radio" name="result2" value="Defeat" checked="checked" /> Defeat
+						<input type="radio" id="result2-victory" name="result2" value="Victory" />
+						<label for="result2-victory">Victory</label>
+						
+						<input type="radio" id="result2-defeat" name="result2" value="Defeat" checked />
+						<label for="result2-defeat">Defeat</label>
 					</div>
 				</div>
 				<div class="player-row">
 					player 3
-					<div class="enabled-div"><input type="checkbox" name="enabled3" value="true" /> Enabled</div>
+					<div class="enabled-div">
+						<input type="checkbox" id="enabled3" name="enabled3" value="true" />
+						<label for="enabled3">Enabled</label>
+					</div>
 					<div>
-						<input type="text" placeholder="Player Name" name="name3" value="player3" />
+						<input type="text" id="name3" placeholder="Player Name" name="name3" value="player3" />
 					</div>
 					<div class="race-div">
-						<input type="radio" name="race3" value="Terr" checked="checked" /> Terr
-						<input type="radio" name="race3" value="Prot" /> Prot
-						<input type="radio" name="race3" value="Zerg" /> Zerg
-						<input type="radio" name="race3" value="random" /> random
-
+						<input type="radio" id="race3-terr" name="race3" value="Terr" checked />
+						<label for="race3-terr">Terr</label>
+						
+						<input type="radio" id="race3-prot" name="race3" value="Prot" />
+						<label for="race3-prot">Prot</label>
+						
+						<input type="radio" id="race3-zerg" name="race3" value="Zerg" />
+						<label for="race3-zerg">Zerg</label>
+						
+						<input type="radio" id="race3-random" name="race3" value="random" />
+						<label for="race3-random">random</label>
 					</div>
 					<div>
-						<input type="radio" name="result3" value="Victory" /> Victory
-						<input type="radio" name="result3" value="Defeat" checked="checked" /> Defeat
+						<input type="radio" id="result3-victory" name="result3" value="Victory" />
+						<label for="result3-victory">Victory</label>
+						
+						<input type="radio" id="result3-defeat" name="result3" value="Defeat" checked />
+						<label for="result3-defeat">Defeat</label>
 					</div>
 				</div>
 				<div class="player-row">
 					player 4
-					<div class="enabled-div"><input type="checkbox" name="enabled4" value="true" /> Enabled</div>
+					<div class="enabled-div">
+						<input type="checkbox" id="enabled4" name="enabled4" value="true" />
+						<label for="enabled4">Enabled</label>
+					</div>
 					<div>
-						<input type="text" placeholder="Player Name" name="name4" value="player4" />
+						<input type="text" id="name4" placeholder="Player Name" name="name4" value="player4" />
 					</div>
 					<div class="race-div">
-						<input type="radio" name="race4" value="Terr" checked="checked" /> Terr
-						<input type="radio" name="race4" value="Prot" /> Prot
-						<input type="radio" name="race4" value="Zerg" /> Zerg
-						<input type="radio" name="race4" value="random" /> random
-
+						<input type="radio" id="race4-terr" name="race4" value="Terr" checked />
+						<label for="race4-terr">Terr</label>
+						
+						<input type="radio" id="race4-prot" name="race4" value="Prot" />
+						<label for="race4-prot">Prot</label>
+						
+						<input type="radio" id="race4-zerg" name="race4" value="Zerg" />
+						<label for="race4-zerg">Zerg</label>
+						
+						<input type="radio" id="race4-random" name="race4" value="random" />
+						<label for="race4-random">random</label>
 					</div>
 					<div>
-						<input type="radio" name="result4" value="Victory" checked="checked" /> Victory
-						<input type="radio" name="result4" value="Defeat" /> Defeat
+						<input type="radio" id="result4-victory" name="result4" value="Victory" checked />
+						<label for="result4-victory">Victory</label>
+						
+						<input type="radio" id="result4-defeat" name="result4" value="Defeat" />
+						<label for="result4-defeat">Defeat</label>
 					</div>
 				</div>
 				<div class="player-row">
 					player 5
-					<div class="enabled-div"><input type="checkbox" name="enabled5" value="true" /> Enabled</div>
+					<div class="enabled-div">
+						<input type="checkbox" id="enabled5" name="enabled5" value="true" />
+						<label for="enabled5">Enabled</label>
+					</div>
 					<div>
-						<input type="text" placeholder="Player Name" name="name5" value="player5" />
+						<input type="text" id="name5" placeholder="Player Name" name="name5" value="player5" />
 					</div>
 					<div class="race-div">
-						<input type="radio" name="race5" value="Terr" checked="checked" /> Terr
-						<input type="radio" name="race5" value="Prot" /> Prot
-						<input type="radio" name="race5" value="Zerg" /> Zerg
-						<input type="radio" name="race5" value="random" /> random
-
+						<input type="radio" id="race5-terr" name="race5" value="Terr" checked />
+						<label for="race5-terr">Terr</label>
+						
+						<input type="radio" id="race5-prot" name="race5" value="Prot" />
+						<label for="race5-prot">Prot</label>
+						
+						<input type="radio" id="race5-zerg" name="race5" value="Zerg" />
+						<label for="race5-zerg">Zerg</label>
+						
+						<input type="radio" id="race5-random" name="race5" value="random" />
+						<label for="race5-random">random</label>
 					</div>
 					<div>
-						<input type="radio" name="result5" value="Victory" /> Victory
-						<input type="radio" name="result5" value="Defeat" checked="checked" /> Defeat
+						<input type="radio" id="result5-victory" name="result5" value="Victory" />
+						<label for="result5-victory">Victory</label>
+						
+						<input type="radio" id="result5-defeat" name="result5" value="Defeat" checked />
+						<label for="result5-defeat">Defeat</label>
 					</div>
 				</div>
 				<div class="player-row">
 					player 6
-					<div class="enabled-div"><input type="checkbox" name="enabled6" value="true" /> Enabled</div>
+					<div class="enabled-div">
+						<input type="checkbox" id="enabled6" name="enabled6" value="true" />
+						<label for="enabled6">Enabled</label>
+					</div>
 					<div>
-						<input type="text" placeholder="Player Name" name="name6" value="player6" />
+						<input type="text" id="name6" placeholder="Player Name" name="name6" value="player6" />
 					</div>
 					<div class="race-div">
-						<input type="radio" name="race6" value="Terr" checked="checked" /> Terr
-						<input type="radio" name="race6" value="Prot" /> Prot
-						<input type="radio" name="race6" value="Zerg" /> Zerg
-						<input type="radio" name="race6" value="random" /> random
-
+						<input type="radio" id="race6-terr" name="race6" value="Terr" checked />
+						<label for="race6-terr">Terr</label>
+						
+						<input type="radio" id="race6-prot" name="race6" value="Prot" />
+						<label for="race6-prot">Prot</label>
+						
+						<input type="radio" id="race6-zerg" name="race6" value="Zerg" />
+						<label for="race6-zerg">Zerg</label>
+						
+						<input type="radio" id="race6-random" name="race6" value="random" />
+						<label for="race6-random">random</label>
 					</div>
 					<div>
-						<input type="radio" name="result6" value="Victory" /> Victory
-						<input type="radio" name="result6" value="Defeat" checked="checked" /> Defeat
+						<input type="radio" id="result6-victory" name="result6" value="Victory" />
+						<label for="result6-victory">Victory</label>
+						
+						<input type="radio" id="result6-defeat" name="result6" value="Defeat" checked />
+						<label for="result6-defeat">Defeat</label>
 					</div>
 				</div>
 				<div class="player-row">
 					player 7
-					<div class="enabled-div"><input type="checkbox" name="enabled7" value="true" /> Enabled</div>
+					<div class="enabled-div">
+						<input type="checkbox" id="enabled7" name="enabled7" value="true" />
+						<label for="enabled7">Enabled</label>
+					</div>
 					<div>
-						<input type="text" placeholder="Player Name" name="name7" value="player7" />
+						<input type="text" id="name7" placeholder="Player Name" name="name7" value="player7" />
 					</div>
 					<div class="race-div">
-						<input type="radio" name="race7" value="Terr" checked="checked" /> Terr
-						<input type="radio" name="race7" value="Prot" /> Prot
-						<input type="radio" name="race7" value="Zerg" /> Zerg
-						<input type="radio" name="race7" value="random" /> random
-
+						<input type="radio" id="race7-terr" name="race7" value="Terr" checked />
+						<label for="race7-terr">Terr</label>
+						
+						<input type="radio" id="race7-prot" name="race7" value="Prot" />
+						<label for="race7-prot">Prot</label>
+						
+						<input type="radio" id="race7-zerg" name="race7" value="Zerg" />
+						<label for="race7-zerg">Zerg</label>
+						
+						<input type="radio" id="race7-random" name="race7" value="random" />
+						<label for="race7-random">random</label>
 					</div>
 					<div>
-						<input type="radio" name="result7" value="Victory" checked="checked" /> Victory
-						<input type="radio" name="result7" value="Defeat" /> Defeat
+						<input type="radio" id="result7-victory" name="result7" value="Victory" checked />
+						<label for="result7-victory">Victory</label>
+						
+						<input type="radio" id="result7-defeat" name="result7" value="Defeat" />
+						<label for="result7-defeat">Defeat</label>
 					</div>
 				</div>
 				<div class="player-row">
 					player 8
-					<div class="enabled-div"><input type="checkbox" name="enabled8" value="true" /> Enabled</div>
+					<div class="enabled-div">
+						<input type="checkbox" id="enabled8" name="enabled8" value="true" />
+						<label for="enabled8">Enabled</label>
+					</div>
 					<div>
-						<input type="text" placeholder="Player Name" name="name8" value="player8" />
+						<input type="text" id="name8" placeholder="Player Name" name="name8" value="player8" />
 					</div>
 					<div class="race-div">
-						<input type="radio" name="race8" value="Terr" checked="checked" /> Terr
-						<input type="radio" name="race8" value="Prot" /> Prot
-						<input type="radio" name="race8" value="Zerg" /> Zerg
-						<input type="radio" name="race8" value="random" /> random
-
+						<input type="radio" id="race8-terr" name="race8" value="Terr" checked />
+						<label for="race8-terr">Terr</label>
+						
+						<input type="radio" id="race8-prot" name="race8" value="Prot" />
+						<label for="race8-prot">Prot</label>
+						
+						<input type="radio" id="race8-zerg" name="race8" value="Zerg" />
+						<label for="race8-zerg">Zerg</label>
+						
+						<input type="radio" id="race8-random" name="race8" value="random" />
+						<label for="race8-random">random</label>
 					</div>
 					<div>
-						<input type="radio" name="result8" value="Victory" checked="checked" /> Victory
-						<input type="radio" name="result8" value="Defeat" /> Defeat
+						<input type="radio" id="result8-victory" name="result8" value="Victory" checked />
+						<label for="result8-victory">Victory</label>
+						
+						<input type="radio" id="result8-defeat" name="result8" value="Defeat" />
+						<label for="result8-defeat">Defeat</label>
 					</div>
 				</div>
 			</div>
