@@ -1,69 +1,84 @@
-$.fn.serializeObject = function () {
-  var o = {};
-  var a = this.serializeArray();
-  $.each(a, function () {
-    o[this.name] = this.value;
-  });
-  return o;
-};
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("configForm");
 
-function push() {
-  var rawData = $('#configForm').serializeObject();
-
-  // Convert radio values for booleans
-  if ("replay" in rawData) {
-    rawData.replay = rawData.replay === "true";
+  function serializeForm(form) {
+    const formData = {};
+    Array.from(form.elements).forEach(el => {
+      if (!el.name) return;
+      if (el.type === "checkbox") {
+        formData[el.name] = el.checked;
+      } else if (el.type === "radio") {
+        if (el.checked) formData[el.name] = el.value;
+      } else {
+        formData[el.name] = el.value;
+      }
+    });
+    return formData;
   }
-  if ("autotime" in rawData) {
-    rawData.autotime = rawData.autotime === "true";
-  }
-  // Convert checkboxes properly
-  $('input[type="checkbox"]').each(function () {
-    rawData[$(this).attr("name")] = $(this).prop("checked");
-  });
 
-  // Build players array (assuming players 1 to 8)
-  var players = [];
-  for (var i = 1; i <= 8; i++) {
-    // Only add a player if the name field is present
-    if (rawData["name" + i] !== undefined) {
-      players.push({
-        id: i,
-        name: rawData["name" + i],
-        race: rawData["race" + i],
-        result: rawData["result" + i],
-        enabled: rawData["enabled" + i] === true
-      });
-      // Remove individual fields from rawData
-      delete rawData["name" + i];
-      delete rawData["race" + i];
-      delete rawData["result" + i];
-      delete rawData["enabled" + i];
+  function push() {
+    let rawData = serializeForm(form);
+
+    // Convert radio values for booleans
+    if ("replay" in rawData) rawData.replay = rawData.replay === "true";
+    if ("autotime" in rawData) rawData.autotime = rawData.autotime === "true";
+
+    if (rawData.additional_menu_state === "") {
+      delete rawData.additional_menu_state;
     }
-  }
-  rawData.players = players;
 
-  // Post the payload
-  $.post({
-    url: "/set",
-    data: JSON.stringify(rawData),
-    contentType: "application/json",
-    processData: false,
-    success: function (response) {
-      console.log("Data saved:", response);
+    // Build players array (players 1 to 8)
+    rawData.players = [];
+    for (let i = 1; i <= 8; i++) {
+      if (rawData["name" + i] !== undefined && rawData["enabled" + i] === true) {
+        rawData.players.push({
+          id: i,
+          name: rawData["name" + i],
+          race: rawData["race" + i],
+          result: rawData["result" + i]
+        });
+      }
     }
-  });
-}
 
-$(function () {
-  $('#configForm').change(function () {
+    // Remove individual player fields
+    for (let i = 1; i <= 8; i++) {
+      ["name", "race", "result", "enabled"].forEach(key => delete rawData[key + i]);
+    }
+
+    // Post the payload
+    fetch("/set", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(rawData)
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log("Data saved:", data);
+        // Update responses after successful POST
+        updateResponse("ui-response", "/ui");
+        updateResponse("game-response", "/game");
+      })
+      .catch(error => console.error("Error:", error));
+  }
+
+  function updateResponse(elementId, url) {
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        const el = document.getElementById(elementId);
+        if (el) {
+          el.textContent = JSON.stringify(data);
+        }
+      })
+      .catch(error => console.error("Fetch error:", error));
+  }
+
+  form.addEventListener("change", () => {
     push();
-    $.get("/ui", function (response) {
-      $("#ui-response").text(JSON.stringify(response));
-    });
-    $.get("/game", function (response) {
-      $("#game-response").text(JSON.stringify(response));
-    });
   });
-  $('#configForm').trigger("change");
+
+  // Trigger an initial change event
+  form.dispatchEvent(new Event("change"));
 });
