@@ -53,7 +53,7 @@ class Player(BaseModel):
 
 class GameInfo(BaseModel):
     isReplay: bool
-    displayTime: float
+    displayTime: int
     players: list[Player]
 
 class UIInfo(BaseModel):
